@@ -3,6 +3,7 @@ import { maleRandom } from "nicknames";
 import { v1 } from "uuid";
 import Room from "./COMPONENTS/room";
 import { handleUpdateRoomEvent, socket } from './COMPONENTS/talk.helpers'
+import Audios from "./COMPONENTS/audio";
 
 function App() {
   const [rooms, setRooms] = useState([]);
@@ -28,6 +29,7 @@ function App() {
           />
         ))}
       </div>
+      <Audios />
     </div>
   );
 }

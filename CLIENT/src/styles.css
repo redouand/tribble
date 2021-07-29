@@ -1,0 +1,43 @@
+button{
+  cursor: pointer;
+}
+
+#talk-page{
+  /* display: flex; */
+  /* justify-content: center;
+  flex-direction: column; */
+  text-align: center;
+}
+
+.the-room{
+  background: rgb(220, 214, 226);
+  height: 10vh;
+  margin: 1em;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.the-room button{
+  background: red;
+  position: absolute;
+  right: 2em;
+  padding: 0 4em;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background-color: grey;
+  height: 50%;
+  color: white;
+  border-radius: 4px;
+
+}
+
+ul{
+  list-style: none;
+  display: flex;
+}
+
+li{
+  margin: 0 1em
+}

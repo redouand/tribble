@@ -9,7 +9,7 @@ const {
   UPDATE_ROOM,
 } = require("../UTILS/events");
 
-const rendersEvent = (io, client, rooms, userToRoom) => {
+const rendersEvent = (io, client, rooms, socketToRoom) => {
   client.emit(LOAD_ROOMS, rooms);
 
   client.on(CREATE_ROOM, ({ name, id }) => {
@@ -21,19 +21,24 @@ const rendersEvent = (io, client, rooms, userToRoom) => {
   });
 
   client.on(USER_JOINED, ({ roomid, name, id }) => {
-    if (rooms[roomid]) rooms[roomid][client.id] = { name, id };
-    else rooms[roomid] = { [client.id]: { name, id } };
+    if (rooms[roomid]) {
+      rooms[roomid][client.id] = { name, id };
+      socketToRoom[client.id] = roomid;
+    } else rooms[roomid] = { [client.id]: { name, id } };
     io.emit(UPDATE_ROOM, { push: { roomid, name, id, socketid: client.id } });
   });
 
   client.on(USER_LEFT, ({ roomid }) => {
     delete rooms[roomid][client.id];
+    delete socketToRoom[client.id];
     io.emit(UPDATE_ROOM, { pop: { roomid, socketid: client.id } });
   });
 
   client.on(USER_JUMPED, ({ prevRoom, currentRoom, name, id }) => {
     delete rooms[prevRoom][client.id];
+    delete socketToRoom[client.id];
     rooms[currentRoom][client.id] = { name, id };
+    socketToRoom[client.id] = currentRoom
     io.emit(UPDATE_ROOM, {
       pop: {
         roomid: prevRoom,
@@ -46,6 +51,16 @@ const rendersEvent = (io, client, rooms, userToRoom) => {
         id,
       },
     });
+  });
+
+  client.on("disconnect", () => {
+    const roomid = socketToRoom[client.id]
+    if (roomid) {
+      console.log(client.id)
+      delete socketToRoom[client.id];
+      delete rooms[roomid][client.id];
+      client.broadcast.emit(USER_LEFT, client.id);
+    }
   });
 };
 
