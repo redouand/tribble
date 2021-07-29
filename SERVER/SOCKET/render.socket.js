@@ -9,20 +9,36 @@ const {
   UPDATE_ROOM,
 } = require("../UTILS/events");
 
-const rendersEvent = (io, client, rooms, userToRoom) => {
-  client.emit(LOAD_ROOMS, rooms);
+const socketMessageHandler = (io, client, catcherHandler) => {
+  const rooms = () => catcherHandler.getProperty("rooms");
+  const checkPropertyIn = (target, object, returnObject = false) => {
+    return target && object && typeof object === "object" && target in object
+      ? returnObject
+        ? object[target]
+        : true
+      : false;
+  };
+
+  client.emit(LOAD_ROOMS, rooms());
 
   client.on(CREATE_ROOM, ({ name, id }) => {
+    let roomsUpdated = rooms();
     const roomid = v1();
-    if (!rooms[roomid]) {
-      rooms[roomid] = {};
+
+    if (!checkPropertyIn(roomid, roomsUpdated)) {
+      catcherHandler.pushPropertyInsideObject("rooms", { [roomid]: {} });
       io.emit(UPDATE_ROOM, { newRoom: { roomid } });
-    } else client.emit(ERROR, { in: "create room", msg: "room already exists" });
+    } else {
+      client.emit(ERROR, { in: "create room", msg: "room already exists" });
+    }
   });
 
   client.on(USER_JOINED, ({ roomid, name, id }) => {
-    if (rooms[roomid]) rooms[roomid][client.id] = { name, id };
-    else rooms[roomid] = { [client.id]: { name, id } };
+    let roomsUpdated = rooms();
+
+    if (checkPropertyIn(roomid, roomsUpdated)) {
+      rooms[roomid][client.id] = { name, id };
+    } else rooms[roomid] = { [client.id]: { name, id } };
     io.emit(UPDATE_ROOM, { push: { roomid, name, id, socketid: client.id } });
   });
 
@@ -49,4 +65,4 @@ const rendersEvent = (io, client, rooms, userToRoom) => {
   });
 };
 
-module.exports = rendersEvent;
+module.exports = { socketMessageHandler };
