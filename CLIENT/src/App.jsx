@@ -39,7 +39,8 @@ function App() {
               socket,
               rooms,
               peersRef,
-              setPeersOnly
+              setPeersOnly,
+              myStream
             }}
           />
         ))}

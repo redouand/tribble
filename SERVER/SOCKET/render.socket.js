@@ -61,7 +61,8 @@ const rendersEvent = (io, client, rooms, socketToRoom) => {
     if (roomid) {
       delete socketToRoom[client.id];
       delete rooms[roomid][client.id];
-      client.broadcast.emit(USER_DISCONNECTED, client.id);
+      Object.keys(rooms[roomid]).forEach(other=>io.to(other).emit(USER_DISCONNECTED, client.id))
+      io.emit(UPDATE_ROOM, { pop: { roomid, socketid: client.id } })
     }
   });
 };

@@ -43,8 +43,10 @@ export const handleJoinRoom = async (e, joinedState, userInfo) => {
   setJoinedInfo({ joinedRoom: roomid, joined: true });
 };
 
-export const handleLeaveRoom = (e, joinedState, peersRef, setPeersOnly) => {
+export const handleLeaveRoom = (e, joinedState, peersRef, setPeersOnly, myStream) => {
   new Audio(leaveSoundEffect).play();
+  myStream.getTracks()[0].stop()
+  console.log('stopped')
   const [joinedInfo, setJoinedInfo] = joinedState;
   const roomid = e.target.parentNode.getAttribute("data-roomid");
   setJoinedInfo({ joinedRoom: null, joined: false });
@@ -69,7 +71,11 @@ export const createPeer = (participant, stream) => {
 
 export const otherParticipantsEvent =
   (setMyStream, peersRef, setPeersOnly) => async (PARTICIPANTS) => {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+    const stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: {
+      echoCancellation: true,
+      noiseSuppression: true,
+      sampleRate: 44100
+  } });
     setMyStream(stream);
     const tempPeersOnly = [];
     PARTICIPANTS.forEach((participant) => {
@@ -119,4 +125,13 @@ export const userDisconnectedEvent = (peersRef, setPeersOnly) => (userWhoLeft)=>
   const tempPeersRef = peersRef.current.filter(p=>p.partnerId !== userWhoLeft)
   peersRef.current = tempPeersRef
   setPeersOnly(tempPeersRef.map(obj=>obj.hisDedicatedPeer))
+}
+
+export const handleMute = (e, myStream)=>{
+  const roomid = e.target.parentNode.getAttribute("data-roomid")
+  const newState = !myStream.getTracks()[0].enabled
+  myStream.getTracks()[0].enabled = newState
+  console.log(myStream.getTracks()[0])
+  myStream.getTracks()[0].addEventListener("mute", event => console.log('muted'), false);
+  
 }

@@ -18,7 +18,7 @@ button{
   align-items: center;
 }
 
-.the-room button{
+#btn{
   background: red;
   position: absolute;
   right: 2em;
