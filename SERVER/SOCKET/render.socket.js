@@ -31,15 +31,18 @@ const rendersEvent = (io, client, rooms, socketToRoom) => {
   });
 
   client.on(USER_LEFT, ({ roomid }) => {
+    Object.keys(rooms[roomid]).forEach(one=>io.to(one).emit(USER_DISCONNECTED, client.id))
     delete rooms[roomid][client.id];
     delete socketToRoom[client.id];
     io.emit(UPDATE_ROOM, { pop: { roomid, socketid: client.id } });
-    Object.keys(rooms[roomid]).forEach(other=>io.to(other).emit(USER_DISCONNECTED, client.id))
   });
 
   client.on(USER_JUMPED, ({ prevRoom, currentRoom, name, id }) => {
+    Object.keys(rooms[prevRoom]).forEach(one=>io.to(one).emit(USER_DISCONNECTED, client.id))
     delete rooms[prevRoom][client.id];
     delete socketToRoom[client.id];
+    const OTHERS = Object.keys(rooms[currentRoom])
+    client.emit(OTHER_PARTICIPANTS, OTHERS)
     rooms[currentRoom][client.id] = { name, id };
     socketToRoom[client.id] = currentRoom;
     io.emit(UPDATE_ROOM, {

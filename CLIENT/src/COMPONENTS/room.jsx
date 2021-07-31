@@ -2,7 +2,7 @@ import React from "react";
 import { handleJoinRoom, handleLeaveRoom, handleMute } from "./talk.helpers";
 
 const Room = (props) => {
-  const { roomid, rooms, userInfo, joinedState, peersRef, setPeersOnly, myStream } = props.propsObj;
+  const { roomid, rooms, userInfo, joinedState, setMyStream } = props.propsObj;
 
   return (
     <div key={roomid} data-roomid={roomid} className="the-room">
@@ -13,13 +13,13 @@ const Room = (props) => {
       </ul>
 
       {joinedState[0].joinedRoom === roomid ? (
-        <button id="btn" onClick={(e) => handleLeaveRoom(e, joinedState, peersRef, setPeersOnly, myStream)}>
+        <button id="btn" onClick={(e) => handleLeaveRoom(e, joinedState , setMyStream)}>
           Leave
         </button>
       ) : (
         <button id="btn" onClick={(e) => handleJoinRoom(e, joinedState, userInfo)}>Join</button>
       )}
-      <button onClick={(e)=>handleMute(e, myStream)}>mute</button>
+      <button onClick={(e)=>handleMute(e, setMyStream)}>mute</button>
     </div>
   );
 };
