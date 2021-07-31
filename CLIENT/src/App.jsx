@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { maleRandom } from "nicknames";
+import MembersComponent from './COMPONENTS/membersComponent'
 import { v1 } from "uuid";
 import Room from "./COMPONENTS/room";
 import { handleUpdateRoomEvent, socket, userDisconnectedEvent, receiveAnswerEvent, receiveOfferEvent, otherParticipantsEvent } from "./COMPONENTS/talk.helpers";
@@ -42,13 +43,12 @@ function App() {
           />
         ))}
       </div>
-      <div>
-        {
-          Object.keys(members).map((member)=>(
-            <h1 ref={members[member].elementRef} key={member}>{member}</h1>
-          ))
-        }
-      </div>
+      {/*-----------CALL MEMBERS------------- */}
+      {
+        Object.keys(members).map((memberId)=>(
+          <MembersComponent key={memberId} memberId={memberId} memberInfo={members[memberId]} />
+        ))
+      }
     </div>
   );
 }
